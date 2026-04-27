@@ -73,7 +73,7 @@ button {
   min-height: 100svh;
   display: grid;
   grid-template-rows: auto 1fr;
-  width: min(43rem, 100%);
+  width: min(43rem, calc(100% - 1.5rem));
   margin: 0 auto;
   padding: 0 1.25rem;
 }
