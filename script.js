@@ -7,6 +7,11 @@ const PRODUCT_KEY = "protocolo_sono_7_noites";
 
 let quizResponseId = null;
 
+function trackPixel(event, params) {
+  if (typeof window.fbq !== "function") return;
+  window.fbq("track", event, params || {});
+}
+
 function buildAnswersPayload() {
   return screens
     .filter((s) => s.question)
@@ -195,7 +200,10 @@ function renderScreen() {
         </div>
       </div>
     `;
-    stage.querySelector("button").addEventListener("click", nextScreen);
+    stage.querySelector("button").addEventListener("click", () => {
+      trackPixel("ViewContent", { content_name: "Quiz Sono Profundo" });
+      nextScreen();
+    });
     return;
   }
 
@@ -253,6 +261,7 @@ function renderScreen() {
   if (screen.type === "result") {
     progressBar.style.width = "100%";
     saveQuizResponses();
+    trackPixel("Lead");
     stage.innerHTML = `
       <div class="screen result">
 
@@ -326,6 +335,7 @@ function renderScreen() {
     `;
 
     stage.querySelector("#ctaButton").addEventListener("click", function () {
+      trackPixel("InitiateCheckout", { value: 37, currency: "BRL", content_ids: ["protocolo_sono_7_noites"] });
       markConversion();
       openCheckout(this);
     });
