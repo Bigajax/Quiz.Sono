@@ -5,6 +5,45 @@ const backButton = document.querySelector("#backButton");
 const API_URL = "https://ecobackend888.onrender.com";
 const PRODUCT_KEY = "protocolo_sono_7_noites";
 
+let quizResponseId = null;
+
+function buildAnswersPayload() {
+  return screens
+    .filter((s) => s.question)
+    .map((s, i) => ({ question: s.question, answer: answers[i + 1] ?? null }));
+}
+
+async function saveQuizResponses() {
+  try {
+    const res = await fetch(`${API_URL}/api/quiz/response`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answers: buildAnswersPayload(),
+        utm: getUtmParams(),
+        quiz_source: "quiz_sono",
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      quizResponseId = data.id;
+    }
+  } catch {
+    // silencioso — não bloqueia o fluxo do usuário
+  }
+}
+
+async function markConversion() {
+  if (!quizResponseId) return;
+  try {
+    await fetch(`${API_URL}/api/quiz/response/${quizResponseId}/convert`, {
+      method: "PATCH",
+    });
+  } catch {
+    // silencioso
+  }
+}
+
 function getUtmParams() {
   const params = new URLSearchParams(window.location.search);
   const utm = {};
