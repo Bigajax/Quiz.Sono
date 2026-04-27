@@ -54,9 +54,18 @@ const screens = [
     type: "hook",
     title: "Você deita…<br><em>mas sua mente não desliga?</em>",
     subtitle:
-      "Responda 4 perguntas e descubra por que isso acontece — e o que fazer ainda hoje à noite.",
+      "Responda 7 perguntas e descubra por que isso acontece — e o que fazer ainda hoje à noite.",
     social: "12.400+ pessoas já descobriram o motivo",
-    cta: "Descobrir meu perfil agora",
+    cta: "Identificar o meu padrão agora",
+  },
+  {
+    question: "Há quanto tempo isso acontece?",
+    options: [
+      "Faz algumas semanas — começou do nada",
+      "Há alguns meses — e parece estar piorando",
+      "Já faz mais de um ano que não durmo direito",
+      "Sempre fui assim, não me lembro de dormir bem",
+    ],
   },
   {
     question: "O que acontece nos primeiros minutos depois que você deita?",
@@ -74,6 +83,24 @@ const screens = [
       "Começo a calcular quantas horas ainda tenho para dormir",
       "Meu corpo fica mais tenso quanto mais eu tento",
       "Desisto e fico olhando o celular até cair de sono",
+    ],
+  },
+  {
+    question: "O que você costuma fazer na última hora antes de dormir?",
+    options: [
+      "Fico no celular até a hora de apagar a luz",
+      "Assisto série ou vídeo até o sono bater",
+      "Tento relaxar, mas minha cabeça não desacelera",
+      "Não tenho rotina — cada noite é diferente",
+    ],
+  },
+  {
+    question: "Você já tentou algo para melhorar seu sono?",
+    options: [
+      "Sim — melatonina, chá, remédio — nada resolveu de vez",
+      "Tentei algumas coisas, mas desisti porque não vi resultado",
+      "Já tentei rotinas e técnicas, mas não consigo manter",
+      "Nunca tentei nada de forma consistente",
     ],
   },
   {
@@ -96,11 +123,6 @@ const screens = [
   },
   {
     type: "loading",
-    steps: [
-      "Analisando padrão de ativação mental…",
-      "Identificando gatilhos de alerta noturno…",
-      "Montando seu protocolo personalizado…",
-    ],
   },
   {
     type: "result",
@@ -139,6 +161,19 @@ function renderScreen() {
   }
 
   if (screen.type === "loading") {
+    const durationAnswer = answers[1] || "";
+    let durationLabel = "identificado";
+    if (durationAnswer.includes("semanas")) durationLabel = "recente";
+    else if (durationAnswer.includes("meses")) durationLabel = "progressivo";
+    else if (durationAnswer.includes("mais de um ano")) durationLabel = "crônico";
+    else if (durationAnswer.includes("Sempre")) durationLabel = "de longa data";
+
+    const steps = [
+      `Padrão ${durationLabel} de ativação mental detectado…`,
+      "Identificando gatilhos de alerta noturno…",
+      "Montando seu protocolo personalizado…",
+    ];
+
     stage.innerHTML = `
       <div class="screen">
         <div class="loading-header">
@@ -147,7 +182,7 @@ function renderScreen() {
           <p class="subtitle">Identificamos seu padrão. Montando protocolo.</p>
         </div>
         <div class="loading-steps">
-          ${screen.steps
+          ${steps
             .map(
               (step, i) => `
             <div class="loading-step" data-i="${i}">
@@ -208,10 +243,17 @@ function renderScreen() {
           <p>Existe um protocolo de <strong>7 minutos</strong> que ensina seu sistema nervoso a desligar antes de dormir.</p>
           <p>Sem remédio. Sem contar ovelhas.<br><strong>Funciona já na primeira noite.</strong></p>
 
-          <div class="testimonial">
-            <div class="testimonial-stars">★★★★★</div>
-            <p>"Dormi 7 horas seguidas pela primeira vez em meses. Não acreditei que seria tão simples."</p>
-            <span class="testimonial-author">— Carla M., 34 anos</span>
+          <div class="testimonials">
+            <div class="testimonial">
+              <div class="testimonial-stars">★★★★★</div>
+              <p>"Dormi 7 horas seguidas pela primeira vez em meses. Não acreditei que seria tão simples."</p>
+              <span class="testimonial-author">— Carla M., 34 anos</span>
+            </div>
+            <div class="testimonial">
+              <div class="testimonial-stars">★★★★★</div>
+              <p>"Terceira noite e já acordo com energia de verdade. Parece que minha cabeça finalmente aprendeu a parar."</p>
+              <span class="testimonial-author">— Marcos T., 41 anos</span>
+            </div>
           </div>
         </div>
 
@@ -226,10 +268,19 @@ function renderScreen() {
           <p><strong>12.400+</strong> pessoas já dormiram melhor com isso</p>
         </div>
 
+        <div class="price-anchor">
+          <span class="price-old">de R$97</span>
+          <span class="price-new">por R$37</span>
+        </div>
+
         <button class="primary-cta btn-pulse" type="button" id="ctaButton">
-          Quero dormir bem ainda hoje — R$37 →
+          Quero dormir bem ainda hoje →
         </button>
-        <p class="cta-sub">Acesso imediato · Resultado em 3 noites ou reembolso</p>
+
+        <div class="guarantee-box">
+          <span class="guarantee-check">✓</span>
+          <p>Resultado em <strong>3 noites</strong> ou reembolso total — sem perguntas</p>
+        </div>
 
       </div>
     `;
@@ -242,7 +293,7 @@ function renderScreen() {
 
   stage.innerHTML = `
     <div class="screen">
-      <p class="eyebrow">Pergunta ${currentScreen} de 4</p>
+      <p class="eyebrow">Pergunta ${currentScreen} de 7</p>
       <h2>${screen.question}</h2>
       <div class="options">
         ${screen.options

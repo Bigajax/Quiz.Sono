@@ -665,6 +665,63 @@ h2 em {
   }
 }
 
+/* ── Testimonials (múltiplos) ── */
+.testimonials {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* ── Âncora de preço ── */
+.price-anchor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.price-old {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-decoration: line-through;
+}
+
+.price-new {
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* ── Garantia ── */
+.guarantee-box {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem 1.1rem;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 0.75rem;
+  background: rgba(74, 222, 128, 0.05);
+  width: 100%;
+  max-width: 31rem;
+}
+
+.guarantee-check {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.guarantee-box p {
+  color: var(--muted-strong);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.guarantee-box strong {
+  color: var(--ink);
+}
+
 /* ── Mobile ── */
 @media (max-width: 420px) {
   .quiz-shell {
