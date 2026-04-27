@@ -213,6 +213,7 @@ function renderScreen() {
 
   if (screen.type === "result") {
     progressBar.style.width = "100%";
+    saveQuizResponses();
     stage.innerHTML = `
       <div class="screen result">
 
@@ -286,6 +287,7 @@ function renderScreen() {
     `;
 
     stage.querySelector("#ctaButton").addEventListener("click", function () {
+      markConversion();
       openCheckout(this);
     });
     return;
