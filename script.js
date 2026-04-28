@@ -4,6 +4,14 @@ const backButton = document.querySelector("#backButton");
 
 const API_URL = "https://ecobackend888.onrender.com";
 const PRODUCT_KEY = "protocolo_sono_7_noites";
+// Localmente: abra o quiz como arquivo (file://) enquanto o app roda em localhost:5173
+// Em produção: troque a URL abaixo pela URL real do Vercel/domínio do app
+const PROD_APP_URL = "https://ecofrontend888.vercel.app";
+const APP_URL = (() => {
+  const h = window.location.hostname;
+  const isLocal = !h || h === "localhost" || h === "127.0.0.1";
+  return isLocal ? "http://localhost:5173" : PROD_APP_URL;
+})();
 
 let quizResponseId = null;
 
@@ -318,26 +326,33 @@ function renderScreen() {
         </div>
 
         <div class="price-anchor">
-          <span class="price-old">de R$97</span>
-          <span class="price-new">por R$37</span>
+          <span class="price-new">Noite 1 — gratuita</span>
+          <span class="price-old">protocolo completo por R$37</span>
         </div>
 
         <button class="primary-cta btn-pulse" type="button" id="ctaButton">
-          Quero dormir bem ainda hoje →
+          Testar Noite 1 agora
         </button>
 
         <div class="guarantee-box">
           <span class="guarantee-check">✓</span>
-          <p>Resultado em <strong>3 noites</strong> ou reembolso total — sem perguntas</p>
+          <p>Sem cadastro. Sem cartão. <strong>Comece agora.</strong></p>
         </div>
 
       </div>
     `;
 
     stage.querySelector("#ctaButton").addEventListener("click", function () {
-      trackPixel("InitiateCheckout", { value: 37, currency: "BRL", content_ids: ["protocolo_sono_7_noites"] });
+      trackPixel("ViewContent", { content_ids: ["protocolo_sono_7_noites"], content_name: "Noite 1 Grátis" });
       markConversion();
-      openCheckout(this);
+      const utmParams = getUtmParams();
+      const guestId = quizResponseId || `guest_${Date.now()}`;
+      const params = new URLSearchParams({
+        guestSono: "1",
+        source: utmParams.utm_source ? `quiz_sono_${utmParams.utm_source}` : "quiz_sono",
+        guest_id: guestId,
+      });
+      window.location.href = `${APP_URL}/app/meditacoes/sono?${params.toString()}`;
     });
     return;
   }
