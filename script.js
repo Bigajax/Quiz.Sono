@@ -106,9 +106,9 @@ const screens = [
     type: "hook",
     title: "Você deita…<br><em>mas sua mente não desliga?</em>",
     subtitle:
-      "Responda 7 perguntas e descubra por que isso acontece — e o que fazer ainda hoje à noite.",
-    social: "12.400+ pessoas já descobriram o motivo",
-    cta: "Identificar o meu padrão agora",
+      "Responda 7 perguntas rápidas e descubra por que seu sistema nervoso não consegue parar — e o que fazer ainda hoje à noite.",
+    social: "12.400+ pessoas já entenderam o próprio padrão",
+    cta: "Descobrir o meu padrão de sono →",
   },
   {
     question: "Há quanto tempo isso acontece?",
@@ -275,30 +275,28 @@ function renderScreen() {
 
         <div class="diagnosis-badge">
           <span class="badge-dot"></span>
-          Estado de Alerta Crônico
+          Diagnóstico · Estado de Alerta Ativo
         </div>
 
         <div class="result-copy">
-          <h2>Você não tem insônia.</h2>
+          <h2>Você não tem insônia.<br><em>Você nunca aprendeu a desligar.</em></h2>
 
-          <p>Você tem dificuldade para <strong>desligar</strong>.</p>
-
-          <p>Seu sistema nervoso entrou em modo de alerta — e não recebeu o sinal para voltar ao repouso. Resultado: seu corpo está esgotado, mas sua mente continua processando.</p>
+          <p>Seu sistema nervoso ficou travado em modo de alerta — e não recebe o sinal para voltar ao repouso. Corpo esgotado, mente ligada.</p>
 
           <div class="result-block">
             <p>Quanto mais você tenta forçar o sono…</p>
             <p><em>mais acordado você fica.</em></p>
           </div>
 
-          <p>Isso não é falta de esforço.<br><strong>É um padrão do seu sistema nervoso — e tem solução.</strong></p>
+          <p>Isso não é fraqueza. É um padrão do sistema nervoso.<br><strong>E tem como reverter — ainda essa noite.</strong></p>
         </div>
 
         <div class="result-divider"></div>
 
         <div class="offer-box">
-          <p class="offer-label">O que resolve isso</p>
-          <p>Existe um protocolo de <strong>7 minutos</strong> que ensina seu sistema nervoso a desligar antes de dormir.</p>
-          <p>Sem remédio. Sem contar ovelhas.<br><strong>Funciona já na primeira noite.</strong></p>
+          <p class="offer-label">A solução que funciona</p>
+          <p>Uma meditação guiada de <strong>7 minutos</strong> criada para desligar o estado de alerta e levar seu sistema nervoso ao repouso.</p>
+          <p>Sem remédio. Sem força de vontade.<br><strong>Só ouvir — e deixar acontecer.</strong></p>
 
           <div class="testimonials">
             <div class="testimonial">
@@ -326,17 +324,17 @@ function renderScreen() {
         </div>
 
         <div class="price-anchor">
-          <span class="price-new">Noite 1 — gratuita</span>
+          <span class="price-free">Noite 1 — completamente grátis</span>
           <span class="price-old">protocolo completo por R$37</span>
         </div>
 
         <button class="primary-cta btn-pulse" type="button" id="ctaButton">
-          Testar Noite 1 agora
+          Ouvir minha primeira meditação — grátis →
         </button>
 
         <div class="guarantee-box">
           <span class="guarantee-check">✓</span>
-          <p>Sem cadastro. Sem cartão. <strong>Comece agora.</strong></p>
+          <p>Sem cadastro. Sem cartão. <strong>Acesso imediato.</strong></p>
         </div>
 
       </div>
