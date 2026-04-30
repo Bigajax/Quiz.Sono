@@ -4,8 +4,6 @@ const backButton = document.querySelector("#backButton");
 
 const API_URL = "https://ecobackend888.onrender.com";
 const PRODUCT_KEY = "protocolo_sono_7_noites";
-// Localmente: abra o quiz como arquivo (file://) enquanto o app roda em localhost:5173
-// Em produção: troque a URL abaixo pela URL real do Vercel/domínio do app
 const PROD_APP_URL = "https://ecofrontend888.vercel.app";
 const APP_URL = (() => {
   const h = window.location.hostname;
@@ -20,10 +18,30 @@ function trackPixel(event, params) {
   window.fbq("track", event, params || {});
 }
 
+function getUtmParams() {
+  const params = new URLSearchParams(window.location.search);
+  const utm = {};
+  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
+    const val = params.get(key);
+    if (val) utm[key] = val;
+  }
+  return utm;
+}
+
 function buildAnswersPayload() {
   return screens
     .filter((s) => s.question)
     .map((s, i) => ({ question: s.question, answer: answers[i + 1] ?? null }));
+}
+
+function saveAnswersToStorage() {
+  try {
+    sessionStorage.setItem("eco.sono.quiz_answers", JSON.stringify(buildAnswersPayload()));
+    if (answers[2]) sessionStorage.setItem("eco.sono.q2_answer", answers[2]);
+    if (answers[5]) sessionStorage.setItem("eco.sono.q5_answer", answers[5]);
+  } catch {
+    // silencioso
+  }
 }
 
 async function saveQuizResponses() {
@@ -42,74 +60,60 @@ async function saveQuizResponses() {
       quizResponseId = data.id;
     }
   } catch {
-    // silencioso — não bloqueia o fluxo do usuário
+    // silencioso
   }
 }
 
 async function markConversion() {
   if (!quizResponseId) return;
   try {
-    await fetch(`${API_URL}/api/quiz/response/${quizResponseId}/convert`, {
-      method: "PATCH",
-    });
+    await fetch(`${API_URL}/api/quiz/response/${quizResponseId}/convert`, { method: "PATCH" });
   } catch {
     // silencioso
   }
 }
 
-function getUtmParams() {
-  const params = new URLSearchParams(window.location.search);
-  const utm = {};
-  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
-    const val = params.get(key);
-    if (val) utm[key] = val;
+// ── Cópia personalizada da tela de transição ──────────────────────────────
+function getTransitionCopy() {
+  const q2 = answers[2] || "";
+  const q5 = answers[5] || "";
+
+  let diagnostic = "Seu sistema nervoso ficou travado em modo de alerta — e não recebe mais o sinal para voltar ao repouso.";
+  if (q2.includes("cabeça começa a girar")) {
+    diagnostic = "Sua mente ativa pensamentos em loop exatamente no momento em que você tenta parar.";
+  } else if (q2.includes("corpo está esgotado")) {
+    diagnostic = "Seu corpo pede descanso, mas seu sistema nervoso ainda não recebe o sinal de parar.";
+  } else if (q2.includes("repassando situações")) {
+    diagnostic = "Seu cérebro fica preso em ciclos de ruminação no silêncio da noite.";
+  } else if (q2.includes("Não paro de pensar")) {
+    diagnostic = "Seu sistema nervoso mantém o estado de alerta mesmo sem uma causa aparente.";
   }
-  return utm;
+
+  let solution = "A meditação de 7 minutos foi calibrada para desligar esse padrão de alerta.";
+  if (q5.includes("desligar minha mente")) {
+    solution = "A meditação de 7 minutos foi calibrada especificamente para silenciar esse estado de hiperativação.";
+  } else if (q5.includes("energia real")) {
+    solution = "O protocolo reensina seu sistema nervoso a recuperar energia real durante o sono.";
+  } else if (q5.includes("ansiedade")) {
+    solution = "A Noite 1 trabalha diretamente o estado de ansiedade noturna — o gatilho do seu padrão.";
+  } else if (q5.includes("controle")) {
+    solution = "Em 7 minutos, você começa a recondicionar quem dita as regras do seu sono.";
+  }
+
+  return { diagnostic, solution };
 }
 
-async function openCheckout(button) {
-  if (button.dataset.loading === "true") return;
-
-  button.dataset.loading = "true";
-  const originalText = button.textContent;
-  button.textContent = "Abrindo pagamento…";
-  button.style.opacity = "0.7";
-
-  try {
-    const res = await fetch(`${API_URL}/api/mp/create-preference`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productKey: PRODUCT_KEY, origin: "quiz", utm: getUtmParams() }),
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body?.message || `Erro ${res.status}`);
-    }
-
-    const { init_point } = await res.json();
-    if (!init_point) throw new Error("Link de pagamento não retornado");
-
-    window.location.href = init_point;
-  } catch (err) {
-    button.dataset.loading = "false";
-    button.textContent = originalText;
-    button.style.opacity = "";
-    alert(
-      `Não foi possível abrir o pagamento.\n${err instanceof Error ? err.message : err}\n\nTente novamente ou entre em contato.`,
-    );
-  }
-}
-
+// ── Screens — 5 perguntas ─────────────────────────────────────────────────
 const screens = [
   {
     type: "hook",
     title: "Você deita…<br><em>mas sua mente não desliga?</em>",
     subtitle:
-      "Responda 7 perguntas rápidas e descubra por que seu sistema nervoso não consegue parar — e o que fazer ainda hoje à noite.",
+      "Responda 5 perguntas rápidas e descubra por que seu sistema nervoso não consegue parar — e o que fazer ainda hoje à noite.",
     social: "12.400+ pessoas já entenderam o próprio padrão",
     cta: "Descobrir o meu padrão de sono →",
   },
+  // Q1 — duração (usada na animação de loading)
   {
     question: "Há quanto tempo isso acontece?",
     options: [
@@ -119,6 +123,7 @@ const screens = [
       "Sempre fui assim, não me lembro de dormir bem",
     ],
   },
+  // Q2 — padrão noturno (usada na transição personalizada)
   {
     question: "O que acontece nos primeiros minutos depois que você deita?",
     options: [
@@ -128,6 +133,7 @@ const screens = [
       "Não paro de pensar — sem motivo específico",
     ],
   },
+  // Q3 — reação ao não conseguir dormir
   {
     question: "Como você reage quando percebe que o sono não está vindo?",
     options: [
@@ -137,15 +143,7 @@ const screens = [
       "Desisto e fico olhando o celular até cair de sono",
     ],
   },
-  {
-    question: "O que você costuma fazer na última hora antes de dormir?",
-    options: [
-      "Fico no celular até a hora de apagar a luz",
-      "Assisto série ou vídeo até o sono bater",
-      "Tento relaxar, mas minha cabeça não desacelera",
-      "Não tenho rotina — cada noite é diferente",
-    ],
-  },
+  // Q4 — tentativas anteriores (qualificação)
   {
     question: "Você já tentou algo para melhorar seu sono?",
     options: [
@@ -155,15 +153,7 @@ const screens = [
       "Nunca tentei nada de forma consistente",
     ],
   },
-  {
-    question: "Como você acorda no dia seguinte?",
-    options: [
-      "Destruído — como se não tivesse descansado nada",
-      "Com o corpo pesado e a mente lenta nas primeiras horas",
-      "Funciono, mas sem energia de verdade",
-      "Bem fisicamente, mas já mentalmente esgotado",
-    ],
-  },
+  // Q5 — motivação (usada na transição personalizada)
   {
     question: "O que você mais quer quando pensa em dormir melhor?",
     options: [
@@ -173,19 +163,15 @@ const screens = [
       "Sentir que estou no controle do meu próprio sono",
     ],
   },
-  {
-    type: "loading",
-  },
-  {
-    type: "result",
-  },
+  { type: "loading" },
+  { type: "transition" },
 ];
 
 let currentScreen = 0;
 const answers = [];
 
 function setProgress() {
-  const quizSteps = screens.length - 2;
+  const quizSteps = screens.length - 2; // exclui loading + transition
   const progress = Math.min((currentScreen / quizSteps) * 100, 100);
   progressBar.style.width = `${progress}%`;
   backButton.hidden = currentScreen === 0 || currentScreen >= screens.length - 1;
@@ -195,6 +181,7 @@ function renderScreen() {
   setProgress();
   const screen = screens[currentScreen];
 
+  // ── Hook ──────────────────────────────────────────────────────────────────
   if (screen.type === "hook") {
     stage.innerHTML = `
       <div class="screen">
@@ -215,6 +202,7 @@ function renderScreen() {
     return;
   }
 
+  // ── Loading ───────────────────────────────────────────────────────────────
   if (screen.type === "loading") {
     const durationAnswer = answers[1] || "";
     let durationLabel = "identificado";
@@ -237,111 +225,86 @@ function renderScreen() {
           <p class="subtitle">Identificamos seu padrão. Montando protocolo.</p>
         </div>
         <div class="loading-steps">
-          ${steps
-            .map(
-              (step, i) => `
+          ${steps.map((step, i) => `
             <div class="loading-step" data-i="${i}">
               <div class="step-icon"><div class="step-spinner"></div></div>
               <span>${step}</span>
-            </div>`,
-            )
-            .join("")}
+            </div>`).join("")}
         </div>
       </div>
     `;
 
     const stepEls = stage.querySelectorAll(".loading-step");
     const STEP = 720;
-
     stepEls.forEach((el, i) => {
       window.setTimeout(() => el.classList.add("active"), i * STEP);
       window.setTimeout(() => {
-        el.querySelector(".step-icon").innerHTML =
-          '<span class="step-check">✓</span>';
+        el.querySelector(".step-icon").innerHTML = '<span class="step-check">✓</span>';
         el.classList.add("done");
       }, i * STEP + STEP - 60);
     });
+
+    // Salvar respostas durante o loading (sem bloquear UX)
+    saveAnswersToStorage();
+    saveQuizResponses();
+    trackPixel("Lead");
 
     window.setTimeout(nextScreen, stepEls.length * STEP + 380);
     return;
   }
 
-  if (screen.type === "result") {
+  // ── Tela de Transição Personalizada ──────────────────────────────────────
+  if (screen.type === "transition") {
     progressBar.style.width = "100%";
-    saveQuizResponses();
-    trackPixel("Lead");
+    const { diagnostic, solution } = getTransitionCopy();
+
     stage.innerHTML = `
-      <div class="screen result">
+      <div class="screen transition-screen">
 
         <div class="diagnosis-badge">
           <span class="badge-dot"></span>
           Diagnóstico · Estado de Alerta Ativo
         </div>
 
-        <div class="result-copy">
-          <h2>Você não tem insônia.<br><em>Você nunca aprendeu a desligar.</em></h2>
+        <h2 class="transition-headline">
+          Seu padrão mostra que sua mente está em <em>estado de alerta constante.</em>
+        </h2>
 
-          <p>Seu sistema nervoso ficou travado em modo de alerta — e não recebe o sinal para voltar ao repouso. Corpo esgotado, mente ligada.</p>
+        <p class="transition-diagnostic">${diagnostic}</p>
 
-          <div class="result-block">
-            <p>Quanto mais você tenta forçar o sono…</p>
-            <p><em>mais acordado você fica.</em></p>
+        <div class="transition-divider"></div>
+
+        <p class="transition-body">Seu corpo está cansado,<br><em>mas sua mente não desliga.</em></p>
+
+        <p class="transition-solution">${solution}</p>
+
+        <div class="testimonials">
+          <div class="testimonial">
+            <div class="testimonial-stars">★★★★★</div>
+            <p>"Dormi 7 horas seguidas pela primeira vez em meses. Não acreditei que seria tão simples."</p>
+            <span class="testimonial-author">— Carla M., 34 anos</span>
           </div>
-
-          <p>Isso não é fraqueza. É um padrão do sistema nervoso.<br><strong>E tem como reverter — ainda essa noite.</strong></p>
-        </div>
-
-        <div class="result-divider"></div>
-
-        <div class="offer-box">
-          <p class="offer-label">A solução que funciona</p>
-          <p>Uma meditação guiada de <strong>7 minutos</strong> criada para desligar o estado de alerta e levar seu sistema nervoso ao repouso.</p>
-          <p>Sem remédio. Sem força de vontade.<br><strong>Só ouvir — e deixar acontecer.</strong></p>
-
-          <div class="testimonials">
-            <div class="testimonial">
-              <div class="testimonial-stars">★★★★★</div>
-              <p>"Dormi 7 horas seguidas pela primeira vez em meses. Não acreditei que seria tão simples."</p>
-              <span class="testimonial-author">— Carla M., 34 anos</span>
-            </div>
-            <div class="testimonial">
-              <div class="testimonial-stars">★★★★★</div>
-              <p>"Terceira noite e já acordo com energia de verdade. Parece que minha cabeça finalmente aprendeu a parar."</p>
-              <span class="testimonial-author">— Marcos T., 41 anos</span>
-            </div>
+          <div class="testimonial">
+            <div class="testimonial-stars">★★★★★</div>
+            <p>"Terceira noite e já acordo com energia de verdade. Parece que minha cabeça finalmente aprendeu a parar."</p>
+            <span class="testimonial-author">— Marcos T., 41 anos</span>
           </div>
         </div>
 
-        <div class="social-row">
-          <div class="avatars">
-            <div class="avatar">AM</div>
-            <div class="avatar">RS</div>
-            <div class="avatar">PL</div>
-            <div class="avatar">JT</div>
-            <div class="avatar">+</div>
-          </div>
-          <p><strong>12.400+</strong> pessoas já dormiram melhor com isso</p>
-        </div>
-
-        <div class="price-anchor">
-          <span class="price-free">Noite 1 — completamente grátis</span>
-          <span class="price-old">protocolo completo por R$37</span>
-        </div>
-
-        <button class="primary-cta btn-pulse" type="button" id="ctaButton">
-          Ouvir minha primeira meditação — grátis →
+        <button class="primary-cta btn-pulse" type="button" id="ctaStart">
+          Iniciar experiência personalizada →
         </button>
 
-        <div class="guarantee-box">
-          <span class="guarantee-check">✓</span>
-          <p>Sem cadastro. Sem cartão. <strong>Acesso imediato.</strong></p>
-        </div>
+        <p class="transition-subtext">Sem cadastro · Sem cartão · Acesso imediato</p>
 
       </div>
     `;
 
-    stage.querySelector("#ctaButton").addEventListener("click", function () {
-      trackPixel("ViewContent", { content_ids: ["protocolo_sono_7_noites"], content_name: "Noite 1 Grátis" });
+    stage.querySelector("#ctaStart").addEventListener("click", function () {
+      trackPixel("ViewContent", {
+        content_ids: [PRODUCT_KEY],
+        content_name: "Noite 1 Grátis",
+      });
       markConversion();
       const utmParams = getUtmParams();
       const guestId = quizResponseId || `guest_${Date.now()}`;
@@ -355,17 +318,15 @@ function renderScreen() {
     return;
   }
 
+  // ── Pergunta ──────────────────────────────────────────────────────────────
   stage.innerHTML = `
     <div class="screen">
-      <p class="eyebrow">Pergunta ${currentScreen} de 7</p>
+      <p class="eyebrow">Pergunta ${currentScreen} de 5</p>
       <h2>${screen.question}</h2>
       <div class="options">
-        ${screen.options
-          .map(
-            (option, index) =>
-              `<button class="option" type="button" data-option="${index}">${option}</button>`,
-          )
-          .join("")}
+        ${screen.options.map((option, index) =>
+          `<button class="option" type="button" data-option="${index}">${option}</button>`
+        ).join("")}
       </div>
     </div>
   `;
