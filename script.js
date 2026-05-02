@@ -91,7 +91,7 @@ function getTransitionCopy() {
 
   let solution = "A meditação de 7 minutos foi calibrada para desligar esse padrão de alerta.";
   if (q5.includes("desligar minha mente")) {
-    solution = "A meditação de 7 minutos foi calibrada especificamente para silenciar esse estado de hiperativação.";
+    solution = "A meditação de 7 minutos foi feita para silenciar esse estado de alerta contínuo.";
   } else if (q5.includes("energia real")) {
     solution = "O protocolo reensina seu sistema nervoso a recuperar energia real durante o sono.";
   } else if (q5.includes("ansiedade")) {
@@ -109,8 +109,8 @@ const screens = [
     type: "hook",
     title: "Você deita…<br><em>mas sua mente não desliga?</em>",
     subtitle:
-      "Responda 5 perguntas rápidas e descubra por que seu sistema nervoso não consegue parar — e o que fazer ainda hoje à noite.",
-    social: "12.400+ pessoas já entenderam o próprio padrão",
+      "5 perguntas para descobrir por que seu sistema nervoso não desliga — e o que mudar ainda esta noite.",
+    social: "12.400+ pessoas dormindo melhor",
     cta: "Descobrir o meu padrão de sono →",
   },
   // Q1 — duração (usada na animação de loading)
@@ -267,14 +267,14 @@ function renderScreen() {
         </div>
 
         <h2 class="transition-headline">
-          Seu padrão mostra que sua mente está em <em>estado de alerta constante.</em>
+          Seu sistema nervoso está <em>travado em estado de alerta.</em>
         </h2>
 
         <p class="transition-diagnostic">${diagnostic}</p>
 
         <div class="transition-divider"></div>
 
-        <p class="transition-body">Seu corpo está cansado,<br><em>mas sua mente não desliga.</em></p>
+        <p class="transition-body">Isso não é fraqueza —<br><em>é um padrão que pode ser reconfigurado.</em></p>
 
         <p class="transition-solution">${solution}</p>
 
@@ -292,7 +292,7 @@ function renderScreen() {
         </div>
 
         <button class="primary-cta btn-pulse" type="button" id="ctaStart">
-          Iniciar experiência personalizada →
+          Começar minha Noite 1 — grátis →
         </button>
 
         <p class="transition-subtext">Sem cadastro · Sem cartão · Acesso imediato</p>
